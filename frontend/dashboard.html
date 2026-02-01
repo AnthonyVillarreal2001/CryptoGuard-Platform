@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoGuard - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            padding: 25px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            font-size: 20px;
+        }
+        .user-info {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .nav-menu {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        .nav-item {
+            padding: 12px 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .nav-item.active {
+            background: #3498db;
+        }
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .btn {
+            padding: 12px 25px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover { 
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        .btn-logout {
+            background: #e74c3c;
+            width: 100%;
+        }
+        .btn-logout:hover { background: #c0392b; }
+        .content-section {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        .content-section.active { 
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .crypto-tools textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .algorithm-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .algo-btn {
+            padding: 10px 20px;
+            background: #ecf0f1;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .algo-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+        .notification.show { transform: translateX(0); }
+        .success { background: #27ae60; }
+        .error { background: #e74c3c; }
+        .info { background: #3498db; }
+        .warning { background: #f39c12; }
+        
+        .input-group {
+            margin: 15px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .document-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .crypto-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>🔐 CryptoGuard</h2>
+            </div>
+            
+            <div class="user-info">
+                <h3 id="username">Usuario</h3>
+                <p id="email">email@ejemplo.com</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item active" data-section="dashboard">
+                    📊 Dashboard
+                </li>
+                <li class="nav-item" data-section="crypto">
+                    🔐 Cifrado/Descifrado
+                </li>
+                <li class="nav-item" data-section="documents">
+                    📄 Documentos
+                </li>
+                <li class="nav-item" data-section="logs">
+                    📋 Historial
+                </li>
+                <li class="nav-item" data-section="profile">
+                    👤 Perfil
+                </li>
+                <li class="nav-item" data-section="test">
+                    🧪 Pruebas
+                </li>
+            </ul>
+            
+            <button class="btn btn-logout" id="logoutBtn">
+                🚪 Cerrar Sesión
+            </button>
+        </nav>
+        
+        <main class="main-content">
+            <div class="header">
+                <div>
+                    <h1 id="pageTitle">Dashboard</h1>
+                    <p>Plataforma de técnicas criptográficas</p>
+                </div>
+                <div>
+                    <span id="connectionStatus" style="color: #27ae60;">● Conectado</span>
+                </div>
+            </div>
+            
+            <!-- Dashboard -->
+            <div class="content-section active" id="dashboard-section">
+                <h2>📈 Estadísticas</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3>📄 Documentos</h3>
+                        <p id="docCount">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>⚡ Operaciones</h3>
+                        <p id="opCount">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>🔑 Algoritmos</h3>
+                        <p>4 disponibles</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>👤 Usuario</h3>
+                        <p id="userRole">Activo</p>
+                    </div>
+                </div>
+                
+                <h2>⚡ Acciones Rápidas</h2>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showSection('crypto')">
+                        🔐 Probar Cifrado
+                    </button>
+                    <button class="btn" id="createDocBtn">
+                        📄 Nuevo Documento
+                    </button>
+                    <button class="btn" onclick="showSection('test')">
+                        🧪 Ejecutar Pruebas
+                    </button>
+                    <button class="btn" onclick="testConnection()">
+                        🔗 Probar Conexión
+                    </button>
+                </div>
+                
+                <div class="crypto-info">
+                    <h3>📚 Algoritmos Disponibles:</h3>
+                    <ul style="margin-top: 10px;">
+                        <li><strong>AES-256:</strong> Cifrado simétrico avanzado</li>
+                        <li><strong>RSA-2048:</strong> Cifrado asimétrico seguro</li>
+                        <li><strong>Vigenère:</strong> Cifrado clásico polialfabético</li>
+                        <li><strong>SHA-256:</strong> Función hash criptográfica</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Herramientas Criptográficas -->
+            <div class="content-section" id="crypto-section">
+                <h2>🔐 Herramientas Criptográficas</h2>
+                
+                <div class="algorithm-buttons">
+                    <button class="algo-btn active" data-algo="AES">
+                        🔑 AES-256
+                    </button>
+                    <button class="algo-btn" data-algo="RSA">
+                        🗝️ RSA-2048
+                    </button>
+                    <button class="algo-btn" data-algo="VIGENERE">
+                        🏛️ Vigenère
+                    </button>
+                    <button class="algo-btn" data-algo="SHA256">
+                        #️⃣ SHA-256
+                    </button>
+                </div>
+                
+                <div class="input-group">
+                    <label>📝 Texto de entrada:</label>
+                    <textarea id="inputText" placeholder="Escribe el texto aquí...">Hola Mundo Crypto 2024</textarea>
+                </div>
+                
+                <div id="keyInput" class="input-group" style="display: none;">
+                    <label>🔑 Clave (para Vigenère):</label>
+                    <input type="text" id="cryptoKey" placeholder="EJEMPLO" value="SECRETO">
+                </div>
+                
+                <div id="ivInput" class="input-group" style="display: none;">
+                    <label>🔄 IV (para descifrar AES):</label>
+                    <input type="text" id="cryptoIv" placeholder="Pega el IV aquí...">
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn" id="encryptBtn">
+                        🔒 Cifrar
+                    </button>
+                    <button class="btn" id="decryptBtn">
+                        🔓 Descifrar
+                    </button>
+                    <button class="btn" id="clearBtn">
+                        🗑️ Limpiar
+                    </button>
+                    <button class="btn" id="copyBtn">
+                        📋 Copiar Resultado
+                    </button>
+                </div>
+                
+                <div class="input-group">
+                    <label>📊 Resultado:</label>
+                    <textarea id="outputText" readonly placeholder="El resultado aparecerá aquí..."></textarea>
+                </div>
+                
+                <div id="resultInfo" class="crypto-info">
+                    <p>💡 <strong>Instrucciones:</strong></p>
+                    <ul style="margin-top: 5px;">
+                        <li><strong>AES:</strong> Para descifrar, necesitas el IV generado durante el cifrado</li>
+                        <li><strong>RSA:</strong> Solo para textos cortos (menos de 190 caracteres)</li>
+                        <li><strong>Vigenère:</strong> Solo letras mayúsculas, necesita clave</li>
+                        <li><strong>SHA-256:</strong> Solo hash, no se puede descifrar</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Documentos -->
+            <div class="content-section" id="documents-section">
+                <h2>📄 Mis Documentos</h2>
+                <button class="btn" id="newDocBtn" style="margin-bottom: 20px;">
+                    ➕ Nuevo Documento
+                </button>
+                
+                <div id="documentsList">
+                    <p>Cargando documentos...</p>
+                </div>
+            </div>
+            
+            <!-- Historial -->
+            <div class="content-section" id="logs-section">
+                <h2>📋 Historial de Actividades</h2>
+                <button class="btn" onclick="loadLogs()" style="margin-bottom: 20px;">
+                    🔄 Actualizar
+                </button>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Acción</th>
+                            <th>Algoritmo</th>
+                            <th>Entrada</th>
+                            <th>Salida</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTable">
+                        <tr><td colspan="5">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Perfil -->
+            <div class="content-section" id="profile-section">
+                <h2>👤 Perfil de Usuario</h2>
+                <div id="profileInfo">
+                    <p>Cargando información...</p>
+                </div>
+            </div>
+            
+            <!-- Pruebas -->
+            <div class="content-section" id="test-section">
+                <h2>🧪 Pruebas Criptográficas</h2>
+                
+                <div class="crypto-info">
+                    <p>Ejecuta pruebas para verificar que todos los algoritmos funcionan correctamente:</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn" onclick="runAllTests()">
+                        🧪 Ejecutar Todas las Pruebas
+                    </button>
+                    <button class="btn" onclick="runAesTest()">
+                        🔑 Probar AES
+                    </button>
+                    <button class="btn" onclick="runRsaTest()">
+                        🗝️ Probar RSA
+                    </button>
+                    <button class="btn" onclick="runVigenereTest()">
+                        🏛️ Probar Vigenère
+                    </button>
+                    <button class="btn" onclick="runSha256Test()">
+                        #️⃣ Probar SHA-256
+                    </button>
+                </div>
+                
+                <div class="input-group">
+                    <label>📊 Resultados de Pruebas:</label>
+                    <textarea id="testResults" readonly rows="15" placeholder="Los resultados de las pruebas aparecerán aquí..."></textarea>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Variables globales
+        let currentToken = localStorage.getItem('token');
+        let currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        let currentAlgorithm = 'AES';
+        let lastEncryptionResult = null;
+        
+        // Verificar sesión
+        if (!currentToken) {
+            window.location.href = 'index.html';
+        }
+        
+        // Mostrar información del usuario
+        document.getElementById('username').textContent = currentUser.username || 'Usuario';
+        document.getElementById('email').textContent = currentUser.email || 'email@ejemplo.com';
+        
+        // Notificación
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            setTimeout(() => notification.classList.remove('show'), 4000);
+        }
+        
+        // Navegación
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                showSection(this.dataset.section);
+            });
+        });
+        
+        function showSection(section) {
+            document.querySelectorAll('.content-section').forEach(s => {
+                s.classList.remove('active');
+            });
+            document.getElementById(`${section}-section`).classList.add('active');
+            
+            const titles = {
+                'dashboard': 'Dashboard',
+                'crypto': 'Herramientas Criptográficas',
+                'documents': 'Documentos',
+                'logs': 'Historial',
+                'profile': 'Perfil',
+                'test': 'Pruebas'
+            };
+            document.getElementById('pageTitle').textContent = titles[section] || 'CryptoGuard';
+        }
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        });
+        
+        // Probar conexión
+        async function testConnection() {
+            try {
+                showNotification('Probando conexión...', 'info');
+                const response = await fetch('http://localhost:5000/api/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification('✅ Conexión exitosa con el servidor', 'success');
+                    document.getElementById('connectionStatus').textContent = '● Conectado';
+                    document.getElementById('connectionStatus').style.color = '#27ae60';
+                } else {
+                    showNotification('❌ Error en la conexión', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ No se pudo conectar al servidor', 'error');
+                document.getElementById('connectionStatus').textContent = '● Desconectado';
+                document.getElementById('connectionStatus').style.color = '#e74c3c';
+            }
+        }
+        
+        // Herramientas criptográficas
+        document.querySelectorAll('.algo-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.algo-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentAlgorithm = this.dataset.algo;
+                
+                // Mostrar/ocultar campos según algoritmo
+                const keyInput = document.getElementById('keyInput');
+                const ivInput = document.getElementById('ivInput');
+                
+                if (currentAlgorithm === 'VIGENERE') {
+                    keyInput.style.display = 'block';
+                    ivInput.style.display = 'none';
+                } else if (currentAlgorithm === 'AES') {
+                    keyInput.style.display = 'none';
+                    ivInput.style.display = 'none'; // Solo para descifrar
+                } else {
+                    keyInput.style.display = 'none';
+                    ivInput.style.display = 'none';
+                }
+                
+                // Limpiar campos
+                document.getElementById('cryptoIv').value = '';
+                
+                showNotification(`Algoritmo seleccionado: ${currentAlgorithm}`, 'info');
+            });
+        });
+        
+        // Cifrar
+        document.getElementById('encryptBtn').addEventListener('click', async () => {
+            const text = document.getElementById('inputText').value.trim();
+            const key = document.getElementById('cryptoKey').value.trim();
+            
+            if (!text) {
+                showNotification('Ingresa un texto para cifrar', 'error');
+                return;
+            }
+            
+            if (currentAlgorithm === 'VIGENERE' && !key) {
+                showNotification('Ingresa una clave para Vigenère', 'error');
+                return;
+            }
+            
+            if (currentAlgorithm === 'RSA' && text.length > 190) {
+                showNotification('Texto muy largo para RSA. Usa AES para textos largos.', 'warning');
+                return;
+            }
+            
+            try {
+                showNotification('Cifrando...', 'info');
+                
+                const payload = {
+                    text: text,
+                    algorithm: currentAlgorithm
+                };
+                
+                if (currentAlgorithm === 'VIGENERE') {
+                    payload.key = key;
+                }
+                
+                const response = await fetch('http://localhost:5000/api/crypto/encrypt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    lastEncryptionResult = data.result;
+                    let output = '';
+                    
+                    if (currentAlgorithm === 'AES') {
+                        output = `🔒 CIFRADO AES-256:\n\n📝 Texto cifrado:\n${data.result.encrypted}\n\n🔄 IV (guárdalo para descifrar):\n${data.result.iv}\n\n📌 Algoritmo: ${data.algorithm}`;
+                        // Mostrar campo para IV para futuros descifrados
+                        document.getElementById('ivInput').style.display = 'block';
+                        document.getElementById('cryptoIv').value = data.result.iv;
+                    } else if (currentAlgorithm === 'RSA') {
+                        output = `🔒 CIFRADO RSA-2048:\n\n📝 Texto cifrado:\n${data.result.encrypted}\n\n📌 Algoritmo: ${data.algorithm}`;
+                    } else if (currentAlgorithm === 'VIGENERE') {
+                        output = `🔒 CIFRADO VIGENÈRE:\n\n📝 Texto cifrado:\n${data.result.encrypted}\n\n🔑 Clave usada: ${data.result.key}\n\n📌 Algoritmo: ${data.algorithm}`;
+                    } else if (currentAlgorithm === 'SHA256') {
+                        output = `#️⃣ HASH SHA-256:\n\n📝 Hash generado:\n${data.result.hash}\n\n⚠️ Nota: SHA-256 es una función hash, no se puede descifrar.\n\n📌 Algoritmo: ${data.algorithm}`;
+                    }
+                    
+                    document.getElementById('outputText').value = output;
+                    showNotification('✅ Cifrado completado', 'success');
+                } else {
+                    showNotification(data.error || 'Error al cifrar', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error de conexión', 'error');
+                console.error('Error:', error);
+            }
+        });
+        
+        // Descifrar
+        document.getElementById('decryptBtn').addEventListener('click', async () => {
+            const text = document.getElementById('inputText').value.trim();
+            const key = document.getElementById('cryptoKey').value.trim();
+            const iv = document.getElementById('cryptoIv').value.trim();
+            
+            if (!text) {
+                showNotification('Ingresa un texto cifrado', 'error');
+                return;
+            }
+            
+            // SHA256 NO SE PUEDE DESCIFRAR
+            if (currentAlgorithm === 'SHA256') {
+                showNotification('⚠️ SHA-256 es una función hash, no se puede descifrar', 'warning');
+                return;
+            }
+            
+            try {
+                showNotification('Descifrando...', 'info');
+                
+                const payload = {
+                    algorithm: currentAlgorithm,
+                    encrypted_text: text
+                };
+                
+                if (currentAlgorithm === 'VIGENERE') {
+                    if (!key) {
+                        showNotification('Ingresa la clave para Vigenère', 'error');
+                        return;
+                    }
+                    payload.key = key;
+                }
+                
+                if (currentAlgorithm === 'AES') {
+                    if (!iv) {
+                        showNotification('Ingresa el IV para descifrar AES', 'error');
+                        return;
+                    }
+                    payload.iv = iv;
+                }
+                
+                const response = await fetch('http://localhost:5000/api/crypto/decrypt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('outputText').value = 
+                        `🔓 TEXTO DESCIFRADO:\n\n📝 Texto original:\n${data.result}\n\n📌 Algoritmo: ${data.algorithm}\n\n✅ Descifrado exitoso`;
+                    showNotification('✅ Descifrado completado', 'success');
+                } else {
+                    showNotification(data.error || 'Error al descifrar', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error de conexión', 'error');
+                console.error('Error:', error);
+            }
+        });
+        
+        // Limpiar
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').value = '';
+            document.getElementById('cryptoKey').value = '';
+            document.getElementById('cryptoIv').value = '';
+            lastEncryptionResult = null;
+            showNotification('Campos limpiados', 'info');
+        });
+        
+        // Copiar resultado
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const outputText = document.getElementById('outputText');
+            if (!outputText.value.trim()) {
+                showNotification('No hay resultado para copiar', 'warning');
+                return;
+            }
+            
+            navigator.clipboard.writeText(outputText.value)
+                .then(() => showNotification('✅ Resultado copiado al portapapeles', 'success'))
+                .catch(err => {
+                    console.error('Error al copiar:', err);
+                    showNotification('❌ Error al copiar', 'error');
+                });
+        });
+        
+        // Documentos
+        document.getElementById('newDocBtn').addEventListener('click', async () => {
+            const title = prompt('📝 Título del documento:');
+            if (!title) return;
+            
+            const content = prompt('📄 Contenido del documento:');
+            if (!content) return;
+            
+            const encryption = prompt('🔐 Tipo de cifrado (AES/RSA/VIGENERE):', 'AES').toUpperCase();
+            if (!['AES', 'RSA', 'VIGENERE'].includes(encryption)) {
+                showNotification('Tipo de cifrado no válido', 'error');
+                return;
+            }
+            
+            const payload = {
+                title: title,
+                content: content,
+                encryption_type: encryption
+            };
+            
+            if (encryption === 'VIGENERE') {
+                const key = prompt('🔑 Clave para Vigenère:');
+                if (!key) return;
+                payload.key = key;
+            }
+            
+            try {
+                showNotification('Creando documento...', 'info');
+                
+                const response = await fetch('http://localhost:5000/api/documents', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification('✅ Documento creado exitosamente', 'success');
+                    loadDocuments();
+                } else {
+                    showNotification(data.error || 'Error al crear documento', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error de conexión', 'error');
+            }
+        });
+        
+        async function loadDocuments() {
+            try {
+                const response = await fetch('http://localhost:5000/api/documents', {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const container = document.getElementById('documentsList');
+                    if (data.documents.length === 0) {
+                        container.innerHTML = '<p>📭 No hay documentos guardados</p>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    data.documents.forEach(doc => {
+                        html += `
+                            <div class="document-item">
+                                <h4>${doc.title}</h4>
+                                <p><small>🔐 ${doc.encryption_type} | 📅 ${new Date(doc.created_at).toLocaleDateString()}</small></p>
+                                <button class="btn" style="padding: 5px 10px; font-size: 12px;" 
+                                        onclick="viewDocument(${doc.id})">
+                                    👁️ Ver
+                                </button>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
+                    document.getElementById('docCount').textContent = data.count;
+                }
+            } catch (error) {
+                console.error('Error cargando documentos:', error);
+            }
+        }
+        
+        async function viewDocument(docId) {
+            try {
+                showNotification('Cargando documento...', 'info');
+                
+                const response = await fetch(`http://localhost:5000/api/documents/${docId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const doc = data.document;
+                    const content = prompt(`📄 ${doc.title}\n🔐 ${doc.encryption_type}\n\nContenido:`, doc.content);
+                    if (content !== null) {
+                        showNotification('Documento cargado', 'success');
+                    }
+                } else {
+                    showNotification(data.error || 'Error al cargar documento', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error de conexión', 'error');
+            }
+        }
+        
+        async function loadLogs() {
+            try {
+                const response = await fetch('http://localhost:5000/api/logs', {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const tbody = document.getElementById('logsTable');
+                    if (data.logs.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5">📭 No hay registros de actividad</td></tr>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    data.logs.forEach(log => {
+                        html += `
+                            <tr>
+                                <td>${new Date(log.timestamp).toLocaleString()}</td>
+                                <td><strong>${log.action}</strong></td>
+                                <td>${log.algorithm || '-'}</td>
+                                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+                                    ${log.input_data || '-'}
+                                </td>
+                                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+                                    ${log.output_data || '-'}
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    tbody.innerHTML = html;
+                    document.getElementById('opCount').textContent = data.count;
+                }
+            } catch (error) {
+                console.error('Error cargando logs:', error);
+            }
+        }
+        
+        async function loadProfile() {
+            try {
+                const response = await fetch('http://localhost:5000/api/user/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const user = data.user;
+                    document.getElementById('profileInfo').innerHTML = `
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                            <p><strong>👤 Usuario:</strong> ${user.username}</p>
+                            <p><strong>📧 Email:</strong> ${user.email}</p>
+                            <p><strong>📅 Registrado:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
+                            <p><strong>🆔 ID:</strong> ${user.id}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error cargando perfil:', error);
+            }
+        }
+        
+        // Funciones de pruebas
+        async function runAllTests() {
+            showNotification('Ejecutando todas las pruebas...', 'info');
+            const results = document.getElementById('testResults');
+            results.value = '🧪 EJECUTANDO PRUEBAS CRIPTOGRÁFICAS...\n\n';
+            
+            await runAesTest();
+            await runRsaTest();
+            await runVigenereTest();
+            await runSha256Test();
+            
+            showNotification('✅ Todas las pruebas completadas', 'success');
+        }
+        
+        async function runAesTest() {
+            try {
+                const response = await fetch('http://localhost:5000/api/crypto/test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'aes' })
+                });
+                
+                const data = await response.json();
+                const results = document.getElementById('testResults');
+                
+                if (response.ok && data.tests.AES.success) {
+                    results.value += `✅ PRUEBA AES-256: EXITOSA\n`;
+                    results.value += `   Texto original: "${data.tests.AES.original}"\n`;
+                    results.value += `   Texto descifrado: "${data.tests.AES.decrypted}"\n`;
+                    results.value += `   Coinciden: ${data.tests.AES.success ? 'SÍ' : 'NO'}\n\n`;
+                } else {
+                    results.value += `❌ PRUEBA AES-256: FALLIDA\n\n`;
+                }
+            } catch (error) {
+                const results = document.getElementById('testResults');
+                results.value += `❌ PRUEBA AES-256: ERROR DE CONEXIÓN\n\n`;
+            }
+        }
+        
+        async function runRsaTest() {
+            try {
+                const response = await fetch('http://localhost:5000/api/crypto/test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'rsa' })
+                });
+                
+                const data = await response.json();
+                const results = document.getElementById('testResults');
+                
+                if (response.ok && data.tests.RSA.success) {
+                    results.value += `✅ PRUEBA RSA-2048: EXITOSA\n`;
+                    results.value += `   Texto original: "${data.tests.RSA.original}"\n`;
+                    results.value += `   Texto descifrado: "${data.tests.RSA.decrypted}"\n`;
+                    results.value += `   Coinciden: ${data.tests.RSA.success ? 'SÍ' : 'NO'}\n\n`;
+                } else {
+                    results.value += `❌ PRUEBA RSA-2048: FALLIDA\n\n`;
+                }
+            } catch (error) {
+                const results = document.getElementById('testResults');
+                results.value += `❌ PRUEBA RSA-2048: ERROR DE CONEXIÓN\n\n`;
+            }
+        }
+        
+        async function runVigenereTest() {
+            try {
+                const response = await fetch('http://localhost:5000/api/crypto/test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'vigenere' })
+                });
+                
+                const data = await response.json();
+                const results = document.getElementById('testResults');
+                
+                if (response.ok && data.tests['Vigenère'].success) {
+                    results.value += `✅ PRUEBA VIGENÈRE: EXITOSA\n`;
+                    results.value += `   Texto original: "${data.tests['Vigenère'].original}"\n`;
+                    results.value += `   Texto cifrado: "${data.tests['Vigenère'].encrypted}"\n`;
+                    results.value += `   Clave: "${data.tests['Vigenère'].key}"\n`;
+                    results.value += `   Coinciden: ${data.tests['Vigenère'].success ? 'SÍ' : 'NO'}\n\n`;
+                } else {
+                    results.value += `❌ PRUEBA VIGENÈRE: FALLIDA\n\n`;
+                }
+            } catch (error) {
+                const results = document.getElementById('testResults');
+                results.value += `❌ PRUEBA VIGENÈRE: ERROR DE CONEXIÓN\n\n`;
+            }
+        }
+        
+        async function runSha256Test() {
+            try {
+                const response = await fetch('http://localhost:5000/api/crypto/test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'sha256' })
+                });
+                
+                const data = await response.json();
+                const results = document.getElementById('testResults');
+                
+                if (response.ok) {
+                    results.value += `✅ PRUEBA SHA-256: EXITOSA\n`;
+                    results.value += `   Texto original: "${data.tests.SHA256.original}"\n`;
+                    results.value += `   Hash generado: ${data.tests.SHA256.hash}\n`;
+                    results.value += `   Longitud del hash: ${data.tests.SHA256.length} caracteres\n\n`;
+                } else {
+                    results.value += `❌ PRUEBA SHA-256: FALLIDA\n\n`;
+                }
+            } catch (error) {
+                const results = document.getElementById('testResults');
+                results.value += `❌ PRUEBA SHA-256: ERROR DE CONEXIÓN\n\n`;
+            }
+        }
+        
+        // Cargar datos iniciales
+        testConnection();
+        loadDocuments();
+        loadLogs();
+        loadProfile();
+        
+        // Establecer algoritmo por defecto
+        document.querySelector('.algo-btn.active').click();
+        
+        // Cargar datos de ejemplo
+        setTimeout(() => {
+            document.getElementById('inputText').value = "Texto de ejemplo para pruebas criptográficas";
+        }, 500);
+    </script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoGuard - Plataforma de Criptografía</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo h1 { color: #2c3e50; margin-bottom: 10px; }
+        .logo p { color: #7f8c8d; }
+        .tabs { 
+            display: flex; 
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-button.active {
+            color: #3498db;
+            border-bottom: 3px solid #3498db;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #2980b9; }
+        .demo-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+        .notification.show { transform: translateX(0); }
+        .success { background: #27ae60; }
+        .error { background: #e74c3c; }
+        .info { background: #3498db; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🔐 CryptoGuard</h1>
+            <p>Plataforma segura de técnicas criptográficas</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" id="loginTab">Iniciar Sesión</button>
+            <button class="tab-button" id="registerTab">Registrarse</button>
+        </div>
+
+        <div class="tab-content active" id="loginForm">
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label for="loginUsername">Usuario</label>
+                    <input type="text" id="loginUsername" placeholder="demo" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="demodemo" required>
+                </div>
+                <button type="submit" class="btn">🔑 Iniciar Sesión</button>
+            </form>
+            <div class="demo-info">
+                <p><strong>🎯 Usuario de demostración:</strong></p>
+                <p>Usuario: <strong>demo</strong></p>
+                <p>Contraseña: <strong>demodemo</strong></p>
+            </div>
+        </div>
+
+        <div class="tab-content" id="registerForm">
+            <form id="registerFormElement">
+                <div class="form-group">
+                    <label for="registerUsername">Usuario</label>
+                    <input type="text" id="registerUsername" placeholder="Crea un nombre de usuario" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" placeholder="tu@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Contraseña</label>
+                    <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres" required>
+                </div>
+                <button type="submit" class="btn">📝 Registrarse</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Elementos DOM
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const notification = document.getElementById('notification');
+
+        // Cambiar pestañas
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            loginForm.classList.add('active');
+            registerForm.classList.remove('active');
+        });
+
+        registerTab.addEventListener('click', () => {
+            loginTab.classList.remove('active');
+            registerTab.classList.add('active');
+            loginForm.classList.remove('active');
+            registerForm.classList.add('active');
+        });
+
+        // Mostrar notificación
+        function showNotification(message, type = 'info') {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            setTimeout(() => notification.classList.remove('show'), 4000);
+        }
+
+        // Login
+        document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                showNotification('Iniciando sesión...', 'info');
+                
+                const response = await fetch('http://localhost:5000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification('✅ ¡Bienvenido!', 'success');
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    showNotification(data.error || 'Error en login', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error de conexión', 'error');
+                console.error('Error:', error);
+            }
+        });
+
+        // Registro
+        document.getElementById('registerFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (password.length < 6) {
+                showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
+                return;
+            }
+            
+            try {
+                showNotification('Registrando usuario...', 'info');
+                
+                const response = await fetch('http://localhost:5000/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification('✅ ¡Registro exitoso!', 'success');
+                    loginTab.click();
+                    document.getElementById('registerFormElement').reset();
+                } else {
+                    showNotification(data.error || 'Error en registro', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error de conexión', 'error');
+                console.error('Error:', error);
+            }
+        });
+
+        // Auto-completar credenciales demo
+        document.getElementById('loginUsername').value = 'demo';
+        document.getElementById('loginPassword').value = 'demodemo';
+    </script>
+</body>
+</html>
