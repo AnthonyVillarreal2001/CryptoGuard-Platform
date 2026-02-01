@@ -83,9 +83,10 @@ pip install -r requirements.txt
 ### Paso 4: Configurar variables de entorno
 Crear archivo `backend/.env` con:
 ```env
-SECRET_KEY=mi_clave_secreta_para_flask_app_2024
-JWT_SECRET=mi_jwt_secret_key_para_tokens_2024
-AES_KEY=32_bytes_key_for_aes_256_cbc_123456
+DATABASE_URL=postgresql://postgres:<tupassword>@localhost:5432/cryptodb
+SECRET_KEY=your-secret-key-here-change-in-production
+JWT_SECRET=your-jwt-secret-key-here
+AES_KEY=32-byte-key-for-aes-256-cbc-01
 ```
 
 ### Paso 5: Ejecutar el backend
@@ -206,30 +207,6 @@ Acceder a la sección "🧪 Pruebas" para:
 - `DELETE /api/documents/<id>` - Eliminar documento
 - `GET /api/logs` - Obtener logs de actividad
 
-### Ejemplos de uso con curl
-
-#### Registrar usuario:
-```bash
-curl -X POST http://localhost:5000/api/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","email":"test@example.com","password":"test123"}'
-```
-
-#### Login:
-```bash
-curl -X POST http://localhost:5000/api/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"demo","password":"demodemo"}'
-```
-
-#### Cifrar texto (requiere token):
-```bash
-curl -X POST http://localhost:5000/api/crypto/encrypt \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer TU_TOKEN_JWT" \
-  -d '{"text":"Hola Mundo","algorithm":"AES"}'
-```
-
 ## 🧪 Pruebas y Verificación
 
 ### Pruebas Automáticas
@@ -253,37 +230,6 @@ curl -X POST http://localhost:5000/api/crypto/test \
 - **RSA-2048:** Cifrado/descifrado exitoso para textos cortos
 - **Vigenère:** Cifrado/descifrado exitoso con clave
 - **SHA-256:** Hash generado correctamente (64 chars hex)
-
-## 🐛 Solución de Problemas Comunes
-
-### Problema: "No se puede encontrar el módulo"
-```cmd
-# Solución: Reinstalar dependencias
-venv\Scripts\activate.bat
-pip install --upgrade -r backend\requirements.txt
-```
-
-### Problema: Puerto 5000 en uso
-```python
-# En app.py, cambiar puerto:
-app.run(debug=True, host='0.0.0.0', port=5001)
-```
-
-### Problema: CORS en frontend
-- Asegurarse de usar `http://localhost:8000` (no `file://`)
-- Verificar que el backend esté ejecutándose
-
-### Problema: Error de base de datos
-```cmd
-# Eliminar base de datos corrupta
-cd backend
-del cryptoguard.db
-python app.py  # Se creará nueva
-```
-
-### Problema: "Token expirado"
-- Cerrar sesión y volver a iniciar
-- Verificar que la hora del sistema sea correcta
 
 ## 📊 Características Técnicas
 
@@ -409,13 +355,13 @@ def decrypt_nuevo_algoritmo(texto_cifrado, clave):
 Este proyecto está desarrollado con fines educativos para el curso de Ingeniería de Seguridad de Software. Libre para uso académico.
 
 ## 👥 Autores
-- [Tu Nombre]
-- [Nombre Compañero 1]
-- [Nombre Compañero 2]
+- ***ALEXIS SANTIAGO CHIMBA PORTERO***
+- ***ARIEL LEONIDAS REYES CERON***
+- ***ANTHONY NESTOR VILLARREAL MACIAS***
 
 ## 🙏 Agradecimientos
 - Dr. Walter Fuertes, PhD por la guía y supervisión
-- Universidad [Nombre] por los recursos
+- Universidad **ESPE** por los recursos
 - Comunidad de código abierto por las bibliotecas utilizadas
 
 ---
